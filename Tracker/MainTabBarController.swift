@@ -1,6 +1,25 @@
 import UIKit
 
 final class MainTabBarController: UITabBarController {
+    private let trackerStore: TrackerStore
+    private let categoryStore: TrackerCategoryStore
+    private let recordStore: TrackerRecordStore
+
+    init(
+        trackerStore: TrackerStore,
+        categoryStore: TrackerCategoryStore,
+        recordStore: TrackerRecordStore
+    ) {
+        self.trackerStore = trackerStore
+        self.categoryStore = categoryStore
+        self.recordStore = recordStore
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        nil
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,7 +36,11 @@ final class MainTabBarController: UITabBarController {
     }
 
     private func setupViewControllers() {
-        let trackersViewController = TrackersViewController()
+        let trackersViewController = TrackersViewController(
+            trackerStore: trackerStore,
+            categoryStore: categoryStore,
+            recordStore: recordStore
+        )
         trackersViewController.tabBarItem = UITabBarItem(
             title: "Трекеры",
             image: UIImage(resource: .imageTracker),
