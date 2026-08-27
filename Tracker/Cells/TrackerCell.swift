@@ -58,8 +58,9 @@ final class TrackerCell: UICollectionViewCell {
         setupView()
     }
 
+    @available(*, unavailable)
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        nil
     }
 
     func configure(
@@ -74,7 +75,7 @@ final class TrackerCell: UICollectionViewCell {
         cardView.backgroundColor = tracker.color
         completeButton.backgroundColor = tracker.color
 
-        let imageName = isCompletedToday ? "checkmark" : "plus"
+        let imageName = isCompletedToday ? SystemImage.checkmark : SystemImage.plus
         let configuration = UIImage.SymbolConfiguration(pointSize: 12, weight: .bold)
         completeButton.setImage(UIImage(systemName: imageName, withConfiguration: configuration), for: .normal)
         completeButton.isEnabled = !isFutureDate

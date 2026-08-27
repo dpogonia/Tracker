@@ -38,7 +38,7 @@ final class TrackersViewController: UIViewController {
     }()
 
     private lazy var stubImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: "imageTrackerStub"))
+        let imageView = UIImageView(image: UIImage(resource: .imageTrackerStub))
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
