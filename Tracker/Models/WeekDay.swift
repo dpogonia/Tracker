@@ -33,3 +33,24 @@ enum WeekDay: Int, CaseIterable {
         }
     }
 }
+
+extension Set where Element == WeekDay {
+    var storedValue: String {
+        WeekDay.allCases
+            .filter { contains($0) }
+            .map { String($0.rawValue) }
+            .joined(separator: ",")
+    }
+
+    init(storedValue: String?) {
+        guard let storedValue, !storedValue.isEmpty else {
+            self = []
+            return
+        }
+        self = Set(
+            storedValue
+                .split(separator: ",")
+                .compactMap { Int($0).flatMap(WeekDay.init(rawValue:)) }
+        )
+    }
+}

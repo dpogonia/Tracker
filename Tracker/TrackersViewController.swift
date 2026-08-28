@@ -3,6 +3,9 @@ import UIKit
 final class TrackersViewController: UIViewController {
     private let defaultCategoryTitle = "Важное"
     private let params = GeometricParams(cellCount: 2, leftInset: 16, rightInset: 16, cellSpacing: 9)
+    private let trackerStore: TrackerStore
+    private let categoryStore: TrackerCategoryStore
+    private let recordStore: TrackerRecordStore
 
     var categories: [TrackerCategory] = []
     var completedTrackers: [TrackerRecord] = []
@@ -52,14 +55,32 @@ final class TrackersViewController: UIViewController {
         return label
     }()
 
+    init(
+        trackerStore: TrackerStore,
+        categoryStore: TrackerCategoryStore,
+        recordStore: TrackerRecordStore
+    ) {
+        self.trackerStore = trackerStore
+        self.categoryStore = categoryStore
+        self.recordStore = recordStore
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        nil
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhiteDay
-        categories = [TrackerCategory(title: defaultCategoryTitle, trackers: [])]
+        trackerStore.delegate = self
+        categoryStore.delegate = self
+        recordStore.delegate = self
         setupNavigationBar()
         setupCollectionView()
         setupStub()
-        reloadVisibleCategories()
+        reloadFromStores()
     }
 
     private func setupNavigationBar() {
@@ -98,6 +119,12 @@ final class TrackersViewController: UIViewController {
             stubLabel.topAnchor.constraint(equalTo: stubImageView.bottomAnchor, constant: 8),
             stubLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor)
         ])
+    }
+
+    private func reloadFromStores() {
+        categories = categoryStore.fetchCategories()
+        completedTrackers = recordStore.fetchRecords()
+        reloadVisibleCategories()
     }
 
     private func reloadVisibleCategories() {
@@ -258,34 +285,26 @@ extension TrackersViewController: TrackerCellDelegate {
         guard !isFutureDate(currentDate) else { return }
 
         let tracker = tracker(at: indexPath)
-        let calendar = Calendar.current
 
         if completedTrackerIDs.contains(tracker.id) {
-            completedTrackers.removeAll {
-                $0.trackerId == tracker.id && calendar.isDate($0.date, inSameDayAs: currentDate)
-            }
-            completedTrackerIDs.remove(tracker.id)
-        } else {
-            completedTrackers.append(TrackerRecord(trackerId: tracker.id, date: currentDate))
-            completedTrackerIDs.insert(tracker.id)
+            try? recordStore.delete(trackerId: tracker.id, on: currentDate)
+        } else if let trackerObject = try? trackerStore.tracker(with: tracker.id) {
+            try? recordStore.add(
+                TrackerRecord(trackerId: tracker.id, date: currentDate),
+                tracker: trackerObject
+            )
         }
-
-        collectionView.reloadItems(at: [indexPath])
     }
 }
 
 extension TrackersViewController: TrackerCreationDelegate {
     func didCreateTracker(_ tracker: Tracker) {
-        if let index = categories.firstIndex(where: { $0.title == defaultCategoryTitle }) {
-            let category = categories[index]
-            let updatedCategory = TrackerCategory(
-                title: category.title,
-                trackers: category.trackers + [tracker]
-            )
-            categories = categories.enumerated().map { $0.offset == index ? updatedCategory : $0.element }
-        } else {
-            categories.append(TrackerCategory(title: defaultCategoryTitle, trackers: [tracker]))
-        }
-        reloadVisibleCategories()
+        try? trackerStore.add(tracker, to: defaultCategoryTitle)
+    }
+}
+
+extension TrackersViewController: StoreDelegate {
+    func storeDidUpdate() {
+        reloadFromStores()
     }
 }
