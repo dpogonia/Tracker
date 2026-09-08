@@ -45,6 +45,22 @@ final class TrackerCategoryStore: NSObject {
     func fetchCategories() -> [TrackerCategory] {
         fetchedResultsController.fetchedObjects?.map { $0.toCategory() } ?? []
     }
+
+    func add(title: String) throws {
+        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedTitle.isEmpty else { return }
+
+        let request = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "title == %@", trimmedTitle)
+        request.fetchLimit = 1
+        if try context.fetch(request).first != nil {
+            return
+        }
+
+        let category = TrackerCategoryCoreData(context: context)
+        category.title = trimmedTitle
+        try context.save()
+    }
 }
 
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {

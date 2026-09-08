@@ -2,8 +2,8 @@ import CoreData
 
 @objc(TrackerRecordCoreData)
 final class TrackerRecordCoreData: NSManagedObject {
-    @NSManaged var date: Date
-    @NSManaged var tracker: TrackerCoreData
+    @NSManaged var date: Date?
+    @NSManaged var tracker: TrackerCoreData?
 }
 
 extension TrackerRecordCoreData {
@@ -11,8 +11,9 @@ extension TrackerRecordCoreData {
         NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
     }
 
-    func toRecord() -> TrackerRecord {
-        TrackerRecord(trackerId: tracker.id, date: date)
+    func toRecord() -> TrackerRecord? {
+        guard let tracker, let date else { return nil }
+        return TrackerRecord(trackerId: tracker.id, date: date)
     }
 }
 
@@ -40,7 +41,7 @@ final class TrackerRecordStore: NSObject {
     }
 
     func fetchRecords() -> [TrackerRecord] {
-        fetchedResultsController.fetchedObjects?.map { $0.toRecord() } ?? []
+        fetchedResultsController.fetchedObjects?.compactMap { $0.toRecord() } ?? []
     }
 
     func add(_ record: TrackerRecord, tracker: TrackerCoreData) throws {
@@ -54,7 +55,8 @@ final class TrackerRecordStore: NSObject {
         let request = TrackerRecordCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "tracker.id == %@", trackerId as NSUUID)
         let records = try context.fetch(request).filter {
-            Calendar.current.isDate($0.date, inSameDayAs: date)
+            guard let recordDate = $0.date else { return false }
+            return Calendar.current.isDate(recordDate, inSameDayAs: date)
         }
         records.forEach { context.delete($0) }
         try context.save()

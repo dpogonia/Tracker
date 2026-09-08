@@ -1,11 +1,13 @@
 import UIKit
 
 protocol TrackerCreationDelegate: AnyObject {
-    func didCreateTracker(_ tracker: Tracker)
+    func didCreateTracker(_ tracker: Tracker, categoryTitle: String)
 }
 
 final class TrackerTypeViewController: UIViewController {
     weak var delegate: TrackerCreationDelegate?
+
+    private let categoryStore: TrackerCategoryStore
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -24,6 +26,16 @@ final class TrackerTypeViewController: UIViewController {
     private lazy var irregularEventButton: UIButton = {
         makeActionButton(title: "Нерегулярное событие", action: #selector(irregularEventTapped))
     }()
+
+    init(categoryStore: TrackerCategoryStore) {
+        self.categoryStore = categoryStore
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) {
+        nil
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,7 +87,7 @@ final class TrackerTypeViewController: UIViewController {
     }
 
     private func presentCreateScreen(isHabit: Bool) {
-        let viewController = NewTrackerViewController(isHabit: isHabit)
+        let viewController = NewTrackerViewController(isHabit: isHabit, categoryStore: categoryStore)
         viewController.delegate = delegate
         viewController.modalPresentationStyle = .pageSheet
         present(viewController, animated: true)

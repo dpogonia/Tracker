@@ -15,17 +15,31 @@ final class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = scene as? UIWindowScene else { return }
 
+        let window = UIWindow(windowScene: windowScene)
+        window.rootViewController = makeRootViewController()
+        window.makeKeyAndVisible()
+        self.window = window
+    }
+
+    private func makeRootViewController() -> UIViewController {
+        if OnboardingStorage.hasCompletedOnboarding {
+            return makeMainTabBarController()
+        }
+
+        return OnboardingViewController { [weak self] in
+            guard let self, let window = self.window else { return }
+            window.rootViewController = self.makeMainTabBarController()
+        }
+    }
+
+    private func makeMainTabBarController() -> MainTabBarController {
         let trackerStore = TrackerStore(context: coreDataStack.context)
         let categoryStore = TrackerCategoryStore(context: coreDataStack.context)
         let recordStore = TrackerRecordStore(context: coreDataStack.context)
-
-        let window = UIWindow(windowScene: windowScene)
-        window.rootViewController = MainTabBarController(
+        return MainTabBarController(
             trackerStore: trackerStore,
             categoryStore: categoryStore,
             recordStore: recordStore
         )
-        window.makeKeyAndVisible()
-        self.window = window
     }
 }

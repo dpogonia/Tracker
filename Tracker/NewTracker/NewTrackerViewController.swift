@@ -4,10 +4,11 @@ final class NewTrackerViewController: UIViewController {
     weak var delegate: TrackerCreationDelegate?
 
     private let isHabit: Bool
+    private let categoryStore: TrackerCategoryStore
     private var selectedSchedule: Set<WeekDay> = []
+    private var selectedCategoryTitle: String?
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
-    private let defaultCategoryTitle = "Важное"
     private let params = GeometricParams(cellCount: 6, leftInset: 18, rightInset: 18, cellSpacing: 5)
 
     private lazy var scrollView: UIScrollView = {
@@ -42,14 +43,27 @@ final class NewTrackerViewController: UIViewController {
         textField.layer.cornerRadius = 16
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 75))
         textField.leftViewMode = .always
-        textField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 75))
-        textField.rightViewMode = .always
-        textField.returnKeyType = .done
         textField.clearButtonMode = .whileEditing
+        textField.returnKeyType = .done
         textField.delegate = self
         textField.addTarget(self, action: #selector(nameChanged), for: .editingChanged)
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
+    }()
+
+    private let limitLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Ограничение 38 символов"
+        label.font = .systemFont(ofSize: 17, weight: .regular)
+        label.textColor = .ypRed
+        label.textAlignment = .center
+        label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private lazy var settingsTableTopConstraint: NSLayoutConstraint = {
+        settingsTableView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 24)
     }()
 
     private lazy var settingsTableView: UITableView = {
@@ -130,8 +144,9 @@ final class NewTrackerViewController: UIViewController {
         return button
     }()
 
-    init(isHabit: Bool) {
+    init(isHabit: Bool, categoryStore: TrackerCategoryStore) {
         self.isHabit = isHabit
+        self.categoryStore = categoryStore
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -167,6 +182,7 @@ final class NewTrackerViewController: UIViewController {
         scrollView.addSubview(contentView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(nameTextField)
+        contentView.addSubview(limitLabel)
         contentView.addSubview(settingsTableView)
         contentView.addSubview(emojiTitleLabel)
         contentView.addSubview(emojiCollectionView)
@@ -196,7 +212,11 @@ final class NewTrackerViewController: UIViewController {
             nameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             nameTextField.heightAnchor.constraint(equalToConstant: 75),
 
-            settingsTableView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 24),
+            limitLabel.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 8),
+            limitLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            limitLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+
+            settingsTableTopConstraint,
             settingsTableView.leadingAnchor.constraint(equalTo: nameTextField.leadingAnchor),
             settingsTableView.trailingAnchor.constraint(equalTo: nameTextField.trailingAnchor),
             settingsTableHeightConstraint,
@@ -253,12 +273,18 @@ final class NewTrackerViewController: UIViewController {
 
     private func updateCreateButton() {
         let hasName = !(nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+        let hasCategory = selectedCategoryTitle != nil
         let hasSchedule = !isHabit || !selectedSchedule.isEmpty
         let hasEmoji = selectedEmoji != nil
         let hasColor = selectedColor != nil
-        let isEnabled = hasName && hasSchedule && hasEmoji && hasColor
+        let isEnabled = hasName && hasCategory && hasSchedule && hasEmoji && hasColor
         createButton.isEnabled = isEnabled
         createButton.backgroundColor = isEnabled ? .ypBlackDay : .ypGray
+    }
+
+    private func updateLimitLabel(isVisible: Bool) {
+        limitLabel.isHidden = !isVisible
+        settingsTableTopConstraint.constant = isVisible ? 54 : 24
     }
 
     @objc
@@ -275,6 +301,7 @@ final class NewTrackerViewController: UIViewController {
     private func createTapped() {
         guard let name = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
               !name.isEmpty,
+              let categoryTitle = selectedCategoryTitle,
               let emoji = selectedEmoji,
               let color = selectedColor else { return }
 
@@ -285,7 +312,7 @@ final class NewTrackerViewController: UIViewController {
             emoji: emoji,
             schedule: isHabit ? selectedSchedule : nil
         )
-        delegate?.didCreateTracker(tracker)
+        delegate?.didCreateTracker(tracker, categoryTitle: categoryTitle)
         view.window?.rootViewController?.dismiss(animated: true)
     }
 
@@ -313,6 +340,19 @@ final class NewTrackerViewController: UIViewController {
 }
 
 extension NewTrackerViewController: UITextFieldDelegate {
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        let current = textField.text ?? ""
+        guard let textRange = Range(range, in: current) else { return true }
+        let updated = current.replacingCharacters(in: textRange, with: string)
+        let isOverLimit = updated.count > 38
+        updateLimitLabel(isVisible: isOverLimit)
+        return !isOverLimit
+    }
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
@@ -335,7 +375,7 @@ extension NewTrackerViewController: UITableViewDataSource, UITableViewDelegate {
         let title = settingRows[indexPath.row]
         let subtitle: String?
         if title == "Категория" {
-            subtitle = defaultCategoryTitle
+            subtitle = selectedCategoryTitle
         } else {
             subtitle = scheduleSubtitle()
         }
@@ -349,7 +389,21 @@ extension NewTrackerViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard settingRows[indexPath.row] == "Расписание" else { return }
+        let title = settingRows[indexPath.row]
+
+        if title == "Категория" {
+            let viewModel = CategoriesViewModel(
+                categoryStore: categoryStore,
+                selectedCategoryTitle: selectedCategoryTitle
+            )
+            let categoriesViewController = CategoriesViewController(viewModel: viewModel)
+            categoriesViewController.delegate = self
+            categoriesViewController.modalPresentationStyle = .pageSheet
+            present(categoriesViewController, animated: true)
+            return
+        }
+
+        guard title == "Расписание" else { return }
 
         let scheduleViewController = ScheduleViewController(selectedDays: selectedSchedule)
         scheduleViewController.delegate = self
@@ -439,6 +493,14 @@ extension NewTrackerViewController: UICollectionViewDataSource, UICollectionView
 extension NewTrackerViewController: ScheduleViewControllerDelegate {
     func didConfirmSchedule(_ schedule: Set<WeekDay>) {
         selectedSchedule = schedule
+        settingsTableView.reloadData()
+        updateCreateButton()
+    }
+}
+
+extension NewTrackerViewController: CategoriesViewControllerDelegate {
+    func didSelectCategory(_ title: String) {
+        selectedCategoryTitle = title
         settingsTableView.reloadData()
         updateCreateButton()
     }

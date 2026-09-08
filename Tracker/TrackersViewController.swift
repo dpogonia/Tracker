@@ -1,7 +1,6 @@
 import UIKit
 
 final class TrackersViewController: UIViewController {
-    private let defaultCategoryTitle = "Важное"
     private let params = GeometricParams(cellCount: 2, leftInset: 16, rightInset: 16, cellSpacing: 9)
     private let trackerStore: TrackerStore
     private let categoryStore: TrackerCategoryStore
@@ -13,6 +12,7 @@ final class TrackersViewController: UIViewController {
 
     private var visibleCategories: [TrackerCategory] = []
     private var completedTrackerIDs: Set<UUID> = []
+    private var searchText = ""
 
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
@@ -22,6 +22,15 @@ final class TrackersViewController: UIViewController {
         datePicker.tintColor = .ypBlue
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
         return datePicker
+    }()
+
+    private lazy var searchController: UISearchController = {
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Поиск"
+        searchController.searchBar.searchBarStyle = .minimal
+        return searchController
     }()
 
     private lazy var collectionView: UICollectionView = {
@@ -51,6 +60,7 @@ final class TrackersViewController: UIViewController {
         label.text = "Что будем отслеживать?"
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .ypBlackDay
+        label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -87,6 +97,9 @@ final class TrackersViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.navigationBar.backgroundColor = .ypWhiteDay
         navigationItem.title = "Трекеры"
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        definesPresentationContext = true
         navigationItem.leftBarButtonItem = UIBarButtonItem(
             barButtonSystemItem: .add,
             target: self,
@@ -130,12 +143,18 @@ final class TrackersViewController: UIViewController {
     private func reloadVisibleCategories() {
         let weekday = Calendar.current.component(.weekday, from: currentDate)
         let selectedDay = WeekDay(rawValue: weekday)
+        let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 
         visibleCategories = categories.compactMap { category in
             let trackers = category.trackers.filter { tracker in
-                guard let schedule = tracker.schedule else { return true }
-                guard let selectedDay else { return false }
-                return schedule.contains(selectedDay)
+                let matchesSchedule: Bool = {
+                    guard let schedule = tracker.schedule else { return true }
+                    guard let selectedDay else { return false }
+                    return schedule.contains(selectedDay)
+                }()
+                guard matchesSchedule else { return false }
+                guard !query.isEmpty else { return true }
+                return tracker.name.lowercased().contains(query)
             }
             return trackers.isEmpty ? nil : TrackerCategory(title: category.title, trackers: trackers)
         }
@@ -156,6 +175,7 @@ final class TrackersViewController: UIViewController {
         stubImageView.isHidden = !isEmpty
         stubLabel.isHidden = !isEmpty
         collectionView.isHidden = isEmpty
+        stubLabel.text = searchText.isEmpty ? "Что будем отслеживать?" : "Ничего не найдено"
     }
 
     private func isFutureDate(_ date: Date) -> Bool {
@@ -172,7 +192,7 @@ final class TrackersViewController: UIViewController {
 
     @objc
     private func addTrackerTapped() {
-        let typeViewController = TrackerTypeViewController()
+        let typeViewController = TrackerTypeViewController(categoryStore: categoryStore)
         typeViewController.delegate = self
         typeViewController.modalPresentationStyle = .pageSheet
         present(typeViewController, animated: true)
@@ -181,6 +201,13 @@ final class TrackersViewController: UIViewController {
     @objc
     private func datePickerValueChanged(_ sender: UIDatePicker) {
         currentDate = sender.date
+        reloadVisibleCategories()
+    }
+}
+
+extension TrackersViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        searchText = searchController.searchBar.text ?? ""
         reloadVisibleCategories()
     }
 }
@@ -298,8 +325,8 @@ extension TrackersViewController: TrackerCellDelegate {
 }
 
 extension TrackersViewController: TrackerCreationDelegate {
-    func didCreateTracker(_ tracker: Tracker) {
-        try? trackerStore.add(tracker, to: defaultCategoryTitle)
+    func didCreateTracker(_ tracker: Tracker, categoryTitle: String) {
+        try? trackerStore.add(tracker, to: categoryTitle)
     }
 }
 
