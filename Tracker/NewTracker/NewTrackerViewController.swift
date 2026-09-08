@@ -43,14 +43,27 @@ final class NewTrackerViewController: UIViewController {
         textField.layer.cornerRadius = 16
         textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 75))
         textField.leftViewMode = .always
-        textField.rightView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: 75))
-        textField.rightViewMode = .always
-        textField.returnKeyType = .done
         textField.clearButtonMode = .whileEditing
+        textField.returnKeyType = .done
         textField.delegate = self
         textField.addTarget(self, action: #selector(nameChanged), for: .editingChanged)
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
+    }()
+
+    private let limitLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Ограничение 38 символов"
+        label.font = .systemFont(ofSize: 17, weight: .regular)
+        label.textColor = .ypRed
+        label.textAlignment = .center
+        label.isHidden = true
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private lazy var settingsTableTopConstraint: NSLayoutConstraint = {
+        settingsTableView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 24)
     }()
 
     private lazy var settingsTableView: UITableView = {
@@ -169,6 +182,7 @@ final class NewTrackerViewController: UIViewController {
         scrollView.addSubview(contentView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(nameTextField)
+        contentView.addSubview(limitLabel)
         contentView.addSubview(settingsTableView)
         contentView.addSubview(emojiTitleLabel)
         contentView.addSubview(emojiCollectionView)
@@ -198,7 +212,11 @@ final class NewTrackerViewController: UIViewController {
             nameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             nameTextField.heightAnchor.constraint(equalToConstant: 75),
 
-            settingsTableView.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 24),
+            limitLabel.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 8),
+            limitLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            limitLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+
+            settingsTableTopConstraint,
             settingsTableView.leadingAnchor.constraint(equalTo: nameTextField.leadingAnchor),
             settingsTableView.trailingAnchor.constraint(equalTo: nameTextField.trailingAnchor),
             settingsTableHeightConstraint,
@@ -264,6 +282,11 @@ final class NewTrackerViewController: UIViewController {
         createButton.backgroundColor = isEnabled ? .ypBlackDay : .ypGray
     }
 
+    private func updateLimitLabel(isVisible: Bool) {
+        limitLabel.isHidden = !isVisible
+        settingsTableTopConstraint.constant = isVisible ? 54 : 24
+    }
+
     @objc
     private func nameChanged() {
         updateCreateButton()
@@ -317,6 +340,19 @@ final class NewTrackerViewController: UIViewController {
 }
 
 extension NewTrackerViewController: UITextFieldDelegate {
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        let current = textField.text ?? ""
+        guard let textRange = Range(range, in: current) else { return true }
+        let updated = current.replacingCharacters(in: textRange, with: string)
+        let isOverLimit = updated.count > 38
+        updateLimitLabel(isVisible: isOverLimit)
+        return !isOverLimit
+    }
+
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
         return true
