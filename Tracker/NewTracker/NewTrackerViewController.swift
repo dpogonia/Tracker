@@ -4,10 +4,11 @@ final class NewTrackerViewController: UIViewController {
     weak var delegate: TrackerCreationDelegate?
 
     private let isHabit: Bool
+    private let categoryStore: TrackerCategoryStore
     private var selectedSchedule: Set<WeekDay> = []
+    private var selectedCategoryTitle: String?
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
-    private let defaultCategoryTitle = "Важное"
     private let params = GeometricParams(cellCount: 6, leftInset: 18, rightInset: 18, cellSpacing: 5)
 
     private lazy var scrollView: UIScrollView = {
@@ -130,8 +131,9 @@ final class NewTrackerViewController: UIViewController {
         return button
     }()
 
-    init(isHabit: Bool) {
+    init(isHabit: Bool, categoryStore: TrackerCategoryStore) {
         self.isHabit = isHabit
+        self.categoryStore = categoryStore
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -253,10 +255,11 @@ final class NewTrackerViewController: UIViewController {
 
     private func updateCreateButton() {
         let hasName = !(nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ?? true)
+        let hasCategory = selectedCategoryTitle != nil
         let hasSchedule = !isHabit || !selectedSchedule.isEmpty
         let hasEmoji = selectedEmoji != nil
         let hasColor = selectedColor != nil
-        let isEnabled = hasName && hasSchedule && hasEmoji && hasColor
+        let isEnabled = hasName && hasCategory && hasSchedule && hasEmoji && hasColor
         createButton.isEnabled = isEnabled
         createButton.backgroundColor = isEnabled ? .ypBlackDay : .ypGray
     }
@@ -275,6 +278,7 @@ final class NewTrackerViewController: UIViewController {
     private func createTapped() {
         guard let name = nameTextField.text?.trimmingCharacters(in: .whitespacesAndNewlines),
               !name.isEmpty,
+              let categoryTitle = selectedCategoryTitle,
               let emoji = selectedEmoji,
               let color = selectedColor else { return }
 
@@ -285,7 +289,7 @@ final class NewTrackerViewController: UIViewController {
             emoji: emoji,
             schedule: isHabit ? selectedSchedule : nil
         )
-        delegate?.didCreateTracker(tracker)
+        delegate?.didCreateTracker(tracker, categoryTitle: categoryTitle)
         view.window?.rootViewController?.dismiss(animated: true)
     }
 
@@ -335,7 +339,7 @@ extension NewTrackerViewController: UITableViewDataSource, UITableViewDelegate {
         let title = settingRows[indexPath.row]
         let subtitle: String?
         if title == "Категория" {
-            subtitle = defaultCategoryTitle
+            subtitle = selectedCategoryTitle
         } else {
             subtitle = scheduleSubtitle()
         }
@@ -349,7 +353,21 @@ extension NewTrackerViewController: UITableViewDataSource, UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        guard settingRows[indexPath.row] == "Расписание" else { return }
+        let title = settingRows[indexPath.row]
+
+        if title == "Категория" {
+            let viewModel = CategoriesViewModel(
+                categoryStore: categoryStore,
+                selectedCategoryTitle: selectedCategoryTitle
+            )
+            let categoriesViewController = CategoriesViewController(viewModel: viewModel)
+            categoriesViewController.delegate = self
+            categoriesViewController.modalPresentationStyle = .pageSheet
+            present(categoriesViewController, animated: true)
+            return
+        }
+
+        guard title == "Расписание" else { return }
 
         let scheduleViewController = ScheduleViewController(selectedDays: selectedSchedule)
         scheduleViewController.delegate = self
@@ -439,6 +457,14 @@ extension NewTrackerViewController: UICollectionViewDataSource, UICollectionView
 extension NewTrackerViewController: ScheduleViewControllerDelegate {
     func didConfirmSchedule(_ schedule: Set<WeekDay>) {
         selectedSchedule = schedule
+        settingsTableView.reloadData()
+        updateCreateButton()
+    }
+}
+
+extension NewTrackerViewController: CategoriesViewControllerDelegate {
+    func didSelectCategory(_ title: String) {
+        selectedCategoryTitle = title
         settingsTableView.reloadData()
         updateCreateButton()
     }

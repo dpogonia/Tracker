@@ -1,7 +1,6 @@
 import UIKit
 
 final class TrackersViewController: UIViewController {
-    private let defaultCategoryTitle = "Важное"
     private let params = GeometricParams(cellCount: 2, leftInset: 16, rightInset: 16, cellSpacing: 9)
     private let trackerStore: TrackerStore
     private let categoryStore: TrackerCategoryStore
@@ -172,7 +171,7 @@ final class TrackersViewController: UIViewController {
 
     @objc
     private func addTrackerTapped() {
-        let typeViewController = TrackerTypeViewController()
+        let typeViewController = TrackerTypeViewController(categoryStore: categoryStore)
         typeViewController.delegate = self
         typeViewController.modalPresentationStyle = .pageSheet
         present(typeViewController, animated: true)
@@ -298,8 +297,8 @@ extension TrackersViewController: TrackerCellDelegate {
 }
 
 extension TrackersViewController: TrackerCreationDelegate {
-    func didCreateTracker(_ tracker: Tracker) {
-        try? trackerStore.add(tracker, to: defaultCategoryTitle)
+    func didCreateTracker(_ tracker: Tracker, categoryTitle: String) {
+        try? trackerStore.add(tracker, to: categoryTitle)
     }
 }
 
