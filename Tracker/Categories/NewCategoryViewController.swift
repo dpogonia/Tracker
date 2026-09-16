@@ -5,7 +5,7 @@ final class NewCategoryViewController: UIViewController {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Новая категория"
+        label.text = L10n.newCategoryTitle
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .ypBlackDay
         label.textAlignment = .center
@@ -15,7 +15,7 @@ final class NewCategoryViewController: UIViewController {
 
     private lazy var nameTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Введите название категории"
+        textField.placeholder = L10n.categoryNamePlaceholder
         textField.font = .systemFont(ofSize: 17, weight: .regular)
         textField.textColor = .ypBlackDay
         textField.backgroundColor = .backgroundDay
@@ -34,7 +34,7 @@ final class NewCategoryViewController: UIViewController {
 
     private let limitLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ограничение 38 символов"
+        label.text = L10n.characterLimit
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.textColor = .ypRed
         label.textAlignment = .center
@@ -45,7 +45,7 @@ final class NewCategoryViewController: UIViewController {
 
     private lazy var doneButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(L10n.doneAction, for: .normal)
         button.setTitleColor(.ypWhiteDay, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypGray

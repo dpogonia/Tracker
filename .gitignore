@@ -1,0 +1,5 @@
+Tracker/Generated/
+DerivedData/
+SourcePackages/
+*.xcuserstate
+.DS_Store

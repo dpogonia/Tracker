@@ -11,7 +11,7 @@ final class CategoriesViewController: UIViewController {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Категория"
+        label.text = L10n.categoryTitle
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .ypBlackDay
         label.textAlignment = .center
@@ -42,7 +42,7 @@ final class CategoriesViewController: UIViewController {
 
     private lazy var stubLabel: UILabel = {
         let label = UILabel()
-        label.text = "Привычки и события можно\nобъединить по смыслу"
+        label.text = L10n.emptyCategories
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.textColor = .ypBlackDay
         label.textAlignment = .center
@@ -53,7 +53,7 @@ final class CategoriesViewController: UIViewController {
 
     private lazy var addButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Добавить категорию", for: .normal)
+        button.setTitle(L10n.addCategoryAction, for: .normal)
         button.setTitleColor(.ypWhiteDay, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypBlackDay
