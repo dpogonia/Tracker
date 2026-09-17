@@ -4,20 +4,6 @@ import Foundation
 import AppMetricaCore
 #endif
 
-enum AnalyticsEvent: String {
-    case open
-    case close
-    case click
-}
-
-enum AnalyticsItem: String {
-    case addTrack = "add_track"
-    case track
-    case filter
-    case edit
-    case delete
-}
-
 final class AnalyticsService {
     static let shared = AnalyticsService()
 
@@ -34,16 +20,20 @@ final class AnalyticsService {
 #endif
     }
 
-    func report(event: AnalyticsEvent, item: AnalyticsItem? = nil) {
+    func report(
+        event: AnalyticsEvent,
+        screen: AnalyticsScreen,
+        item: AnalyticsItem? = nil
+    ) {
         var parameters = [
             "event": event.rawValue,
-            "screen": "Main"
+            "screen": screen.rawValue
         ]
         if let item {
             parameters["item"] = item.rawValue
         }
 #if canImport(AppMetricaCore)
-        AppMetrica.reportEvent(name: "Main", parameters: parameters, onFailure: nil)
+        AppMetrica.reportEvent(name: screen.rawValue, parameters: parameters, onFailure: nil)
 #endif
         print("AppMetrica:", parameters)
     }

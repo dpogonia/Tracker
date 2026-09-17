@@ -109,12 +109,12 @@ final class TrackersViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        AnalyticsService.shared.report(event: .open)
+        AnalyticsService.shared.report(event: .open, screen: .main)
     }
 
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        AnalyticsService.shared.report(event: .close)
+        AnalyticsService.shared.report(event: .close, screen: .main)
     }
 
     private func setupNavigationBar() {
@@ -242,7 +242,7 @@ final class TrackersViewController: UIViewController {
 
     @objc
     private func addTrackerTapped() {
-        AnalyticsService.shared.report(event: .click, item: .addTrack)
+        AnalyticsService.shared.report(event: .click, screen: .main, item: .addTrack)
         let typeViewController = TrackerTypeViewController(categoryStore: categoryStore)
         typeViewController.delegate = self
         typeViewController.modalPresentationStyle = .pageSheet
@@ -257,21 +257,27 @@ final class TrackersViewController: UIViewController {
 
     @objc
     private func filterTapped() {
-        AnalyticsService.shared.report(event: .click, item: .filter)
+        AnalyticsService.shared.report(event: .click, screen: .main, item: .filter)
         let viewController = FiltersViewController(selectedFilter: selectedFilter)
         viewController.delegate = self
-        viewController.modalPresentationStyle = .pageSheet
+        viewController.modalPresentationStyle = .fullScreen
         present(viewController, animated: true)
     }
 
     private func editTracker(_ tracker: Tracker) {
-        AnalyticsService.shared.report(event: .click, item: .edit)
-        let categoryTitle = try? trackerStore.categoryTitle(for: tracker.id)
+        AnalyticsService.shared.report(event: .click, screen: .main, item: .edit)
+        let categoryTitle: String?
+        do {
+            categoryTitle = try trackerStore.categoryTitle(for: tracker.id)
+        } catch {
+            showError(error)
+            return
+        }
         let viewController = NewTrackerViewController(
             isHabit: tracker.schedule != nil,
             categoryStore: categoryStore,
             tracker: tracker,
-            categoryTitle: categoryTitle ?? nil
+            categoryTitle: categoryTitle
         )
         viewController.delegate = self
         viewController.modalPresentationStyle = .pageSheet
@@ -279,7 +285,7 @@ final class TrackersViewController: UIViewController {
     }
 
     private func confirmDeletion(of tracker: Tracker) {
-        AnalyticsService.shared.report(event: .click, item: .delete)
+        AnalyticsService.shared.report(event: .click, screen: .main, item: .delete)
         let alert = UIAlertController(
             title: L10n.deleteTrackerTitle,
             message: nil,
@@ -289,12 +295,27 @@ final class TrackersViewController: UIViewController {
             title: L10n.deleteAction,
             style: .destructive
         ) { [weak self] _ in
-            try? self?.trackerStore.delete(id: tracker.id)
+            guard let self else { return }
+            do {
+                try trackerStore.delete(id: tracker.id)
+            } catch {
+                showError(error)
+            }
         })
         alert.addAction(UIAlertAction(
             title: L10n.cancelAction,
             style: .cancel
         ))
+        present(alert, animated: true)
+    }
+
+    private func showError(_ error: Error) {
+        let alert = UIAlertController(
+            title: L10n.errorTitle,
+            message: error.localizedDescription,
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: L10n.doneAction, style: .default))
         present(alert, animated: true)
     }
 }
@@ -444,25 +465,33 @@ extension TrackersViewController: TrackerCellDelegate {
         guard !isFutureDate(currentDate) else { return }
 
         let tracker = tracker(at: indexPath)
-        AnalyticsService.shared.report(event: .click, item: .track)
+        AnalyticsService.shared.report(event: .click, screen: .main, item: .track)
 
-        if completedTrackerIDs.contains(tracker.id) {
-            try? recordStore.delete(trackerId: tracker.id, on: currentDate)
-        } else if let trackerObject = try? trackerStore.tracker(with: tracker.id) {
-            try? recordStore.add(
-                TrackerRecord(trackerId: tracker.id, date: currentDate),
-                tracker: trackerObject
-            )
+        do {
+            if completedTrackerIDs.contains(tracker.id) {
+                try recordStore.delete(trackerId: tracker.id, on: currentDate)
+            } else if let trackerObject = try trackerStore.tracker(with: tracker.id) {
+                try recordStore.add(
+                    TrackerRecord(trackerId: tracker.id, date: currentDate),
+                    tracker: trackerObject
+                )
+            }
+        } catch {
+            showError(error)
         }
     }
 }
 
 extension TrackersViewController: TrackerCreationDelegate {
     func didCreateTracker(_ tracker: Tracker, categoryTitle: String) {
-        if (try? trackerStore.tracker(with: tracker.id)) != nil {
-            try? trackerStore.update(tracker, categoryTitle: categoryTitle)
-        } else {
-            try? trackerStore.add(tracker, to: categoryTitle)
+        do {
+            if try trackerStore.tracker(with: tracker.id) != nil {
+                try trackerStore.update(tracker, categoryTitle: categoryTitle)
+            } else {
+                try trackerStore.add(tracker, to: categoryTitle)
+            }
+        } catch {
+            showError(error)
         }
     }
 }

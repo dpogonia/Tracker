@@ -1,6 +1,6 @@
 import UIKit
 
-final class StatisticsCardView: UIView {
+final class StatisticsCardController: UIView {
     private let gradientLayer = CAGradientLayer()
     private let maskLayer = CAShapeLayer()
 
@@ -60,7 +60,10 @@ final class StatisticsCardView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         gradientLayer.frame = bounds
-        maskLayer.path = UIBezierPath(roundedRect: bounds.insetBy(dx: 1, dy: 1), cornerRadius: 16).cgPath
+        maskLayer.path = UIBezierPath(
+            roundedRect: bounds.insetBy(dx: 1, dy: 1),
+            cornerRadius: 16
+        ).cgPath
     }
 
     func configure(value: Int, title: String) {

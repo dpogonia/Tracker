@@ -3,8 +3,8 @@ import UIKit
 final class StatisticsViewController: UIViewController {
     private let recordStore: TrackerRecordStore
 
-    private let cardView: StatisticsCardView = {
-        let view = StatisticsCardView()
+    private let cardView: StatisticsCardController = {
+        let view = StatisticsCardController()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

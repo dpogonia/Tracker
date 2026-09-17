@@ -1,17 +1,25 @@
+// MARK: - Trackers
+
 "trackers_title" = "Tracker";
-"statistics_title" = "Statistik";
 "search_placeholder" = "Suchen";
 "empty_trackers" = "Was möchtest du verfolgen?";
 "nothing_found" = "Nichts gefunden";
+
+// MARK: - Filters
+
 "filters_title" = "Filter";
 "filter_all" = "Alle Tracker";
 "filter_today" = "Tracker für heute";
 "filter_completed" = "Abgeschlossen";
 "filter_incomplete" = "Nicht abgeschlossen";
+
+// MARK: - Tracker Editing
+
 "edit_action" = "Bearbeiten";
 "delete_action" = "Löschen";
 "delete_tracker_title" = "Möchtest du den Tracker wirklich löschen?";
 "cancel_action" = "Abbrechen";
+"error_title" = "Fehler";
 "add_tracker_title" = "Tracker erstellen";
 "habit_title" = "Gewohnheit";
 "irregular_event_title" = "Unregelmäßiges Ereignis";
@@ -29,15 +37,28 @@
 "create_action" = "Erstellen";
 "save_action" = "Speichern";
 "done_action" = "Fertig";
+
+// MARK: - Category
+
 "add_category_action" = "Kategorie hinzufügen";
 "new_category_title" = "Neue Kategorie";
 "category_name_placeholder" = "Kategorienamen eingeben";
 "empty_categories" = "Gewohnheiten und Ereignisse können\nnach Bedeutung gruppiert werden";
+
+// MARK: - Onboarding
+
 "onboarding_first" = "Verfolge nur,\nwas du möchtest";
 "onboarding_second" = "Auch wenn es nicht\nWasser und Yoga ist";
 "onboarding_action" = "Das ist Technologie!";
+
+// MARK: - Statistics
+
+"statistics_title" = "Statistik";
 "completed_title" = "Abgeschlossen";
 "empty_statistics" = "Noch nichts zu analysieren";
+
+// MARK: - Weekdays
+
 "monday" = "Montag";
 "tuesday" = "Dienstag";
 "wednesday" = "Mittwoch";

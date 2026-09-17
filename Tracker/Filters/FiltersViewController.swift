@@ -21,7 +21,7 @@ final class FiltersViewController: UIViewController {
 
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
-        tableView.backgroundColor = .backgroundDay
+        tableView.backgroundColor = .clear
         tableView.layer.cornerRadius = 16
         tableView.clipsToBounds = true
         tableView.separatorColor = .ypGray
@@ -45,10 +45,21 @@ final class FiltersViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        configureUI()
+    }
+
+    private func configureUI() {
         view.backgroundColor = .ypWhiteDay
+        addSubviews()
+        setupConstraints()
+    }
+
+    private func addSubviews() {
         view.addSubview(titleLabel)
         view.addSubview(tableView)
+    }
 
+    private func setupConstraints() {
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -61,7 +72,9 @@ final class FiltersViewController: UIViewController {
     }
 }
 
-extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
+// MARK: - UITableViewDataSource
+
+extension FiltersViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         TrackerFilter.allCases.count
     }
@@ -78,10 +91,18 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
         cell.tintColor = .ypBlue
         return cell
     }
+}
 
+// MARK: - UITableViewDelegate
+
+extension FiltersViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         delegate?.didSelectFilter(TrackerFilter.allCases[indexPath.row])
         dismiss(animated: true)
+    }
+
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        75
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {

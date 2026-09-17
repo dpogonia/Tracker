@@ -1,17 +1,25 @@
+// MARK: - Trackers
+
 "trackers_title" = "Трекеры";
-"statistics_title" = "Статистика";
 "search_placeholder" = "Поиск";
 "empty_trackers" = "Что будем отслеживать?";
 "nothing_found" = "Ничего не найдено";
+
+// MARK: - Filters
+
 "filters_title" = "Фильтры";
 "filter_all" = "Все трекеры";
 "filter_today" = "Трекеры на сегодня";
 "filter_completed" = "Завершённые";
 "filter_incomplete" = "Незавершённые";
+
+// MARK: - Tracker Editing
+
 "edit_action" = "Редактировать";
 "delete_action" = "Удалить";
 "delete_tracker_title" = "Уверены, что хотите удалить трекер?";
 "cancel_action" = "Отменить";
+"error_title" = "Ошибка";
 "add_tracker_title" = "Создание трекера";
 "habit_title" = "Привычка";
 "irregular_event_title" = "Нерегулярное событие";
@@ -29,15 +37,28 @@
 "create_action" = "Создать";
 "save_action" = "Сохранить";
 "done_action" = "Готово";
+
+// MARK: - Category
+
 "add_category_action" = "Добавить категорию";
 "new_category_title" = "Новая категория";
 "category_name_placeholder" = "Введите название категории";
 "empty_categories" = "Привычки и события можно\nобъединить по смыслу";
+
+// MARK: - Onboarding
+
 "onboarding_first" = "Отслеживайте только\nто, что хотите";
 "onboarding_second" = "Даже если это\nне литры воды и йога";
 "onboarding_action" = "Вот это технологии!";
+
+// MARK: - Statistics
+
+"statistics_title" = "Статистика";
 "completed_title" = "Завершено";
 "empty_statistics" = "Анализировать пока нечего";
+
+// MARK: - Weekdays
+
 "monday" = "Понедельник";
 "tuesday" = "Вторник";
 "wednesday" = "Среда";
