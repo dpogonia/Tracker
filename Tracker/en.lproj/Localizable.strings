@@ -1,0 +1,75 @@
+// MARK: - Trackers
+
+"trackers_title" = "Trackers";
+"search_placeholder" = "Search";
+"empty_trackers" = "What would you like to track?";
+"nothing_found" = "Nothing found";
+
+// MARK: - Filters
+
+"filters_title" = "Filters";
+"filter_all" = "All trackers";
+"filter_today" = "Trackers for today";
+"filter_completed" = "Completed";
+"filter_incomplete" = "Incomplete";
+
+// MARK: - Tracker Editing
+
+"edit_action" = "Edit";
+"delete_action" = "Delete";
+"delete_tracker_title" = "Are you sure you want to delete the tracker?";
+"cancel_action" = "Cancel";
+"error_title" = "Error";
+"add_tracker_title" = "Create tracker";
+"habit_title" = "Habit";
+"irregular_event_title" = "Irregular event";
+"new_habit_title" = "New habit";
+"new_event_title" = "New irregular event";
+"edit_habit_title" = "Edit habit";
+"edit_event_title" = "Edit irregular event";
+"tracker_name_placeholder" = "Enter tracker name";
+"character_limit" = "38 character limit";
+"emoji_title" = "Emoji";
+"color_title" = "Color";
+"category_title" = "Category";
+"schedule_title" = "Schedule";
+"every_day" = "Every day";
+"create_action" = "Create";
+"save_action" = "Save";
+"done_action" = "Done";
+
+// MARK: - Category
+
+"add_category_action" = "Add category";
+"new_category_title" = "New category";
+"category_name_placeholder" = "Enter category name";
+"empty_categories" = "Habits and events can be\ngrouped by meaning";
+
+// MARK: - Onboarding
+
+"onboarding_first" = "Track only\nwhat you want";
+"onboarding_second" = "Even if it isn't\nwater and yoga";
+"onboarding_action" = "That's technology!";
+
+// MARK: - Statistics
+
+"statistics_title" = "Statistics";
+"completed_title" = "Completed";
+"empty_statistics" = "Nothing to analyze yet";
+
+// MARK: - Weekdays
+
+"monday" = "Monday";
+"tuesday" = "Tuesday";
+"wednesday" = "Wednesday";
+"thursday" = "Thursday";
+"friday" = "Friday";
+"saturday" = "Saturday";
+"sunday" = "Sunday";
+"monday_short" = "Mon";
+"tuesday_short" = "Tue";
+"wednesday_short" = "Wed";
+"thursday_short" = "Thu";
+"friday_short" = "Fri";
+"saturday_short" = "Sat";
+"sunday_short" = "Sun";

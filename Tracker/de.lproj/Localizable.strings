@@ -1,0 +1,75 @@
+// MARK: - Trackers
+
+"trackers_title" = "Tracker";
+"search_placeholder" = "Suchen";
+"empty_trackers" = "Was möchtest du verfolgen?";
+"nothing_found" = "Nichts gefunden";
+
+// MARK: - Filters
+
+"filters_title" = "Filter";
+"filter_all" = "Alle Tracker";
+"filter_today" = "Tracker für heute";
+"filter_completed" = "Abgeschlossen";
+"filter_incomplete" = "Nicht abgeschlossen";
+
+// MARK: - Tracker Editing
+
+"edit_action" = "Bearbeiten";
+"delete_action" = "Löschen";
+"delete_tracker_title" = "Möchtest du den Tracker wirklich löschen?";
+"cancel_action" = "Abbrechen";
+"error_title" = "Fehler";
+"add_tracker_title" = "Tracker erstellen";
+"habit_title" = "Gewohnheit";
+"irregular_event_title" = "Unregelmäßiges Ereignis";
+"new_habit_title" = "Neue Gewohnheit";
+"new_event_title" = "Neues unregelmäßiges Ereignis";
+"edit_habit_title" = "Gewohnheit bearbeiten";
+"edit_event_title" = "Ereignis bearbeiten";
+"tracker_name_placeholder" = "Tracker-Namen eingeben";
+"character_limit" = "Maximal 38 Zeichen";
+"emoji_title" = "Emoji";
+"color_title" = "Farbe";
+"category_title" = "Kategorie";
+"schedule_title" = "Zeitplan";
+"every_day" = "Jeden Tag";
+"create_action" = "Erstellen";
+"save_action" = "Speichern";
+"done_action" = "Fertig";
+
+// MARK: - Category
+
+"add_category_action" = "Kategorie hinzufügen";
+"new_category_title" = "Neue Kategorie";
+"category_name_placeholder" = "Kategorienamen eingeben";
+"empty_categories" = "Gewohnheiten und Ereignisse können\nnach Bedeutung gruppiert werden";
+
+// MARK: - Onboarding
+
+"onboarding_first" = "Verfolge nur,\nwas du möchtest";
+"onboarding_second" = "Auch wenn es nicht\nWasser und Yoga ist";
+"onboarding_action" = "Das ist Technologie!";
+
+// MARK: - Statistics
+
+"statistics_title" = "Statistik";
+"completed_title" = "Abgeschlossen";
+"empty_statistics" = "Noch nichts zu analysieren";
+
+// MARK: - Weekdays
+
+"monday" = "Montag";
+"tuesday" = "Dienstag";
+"wednesday" = "Mittwoch";
+"thursday" = "Donnerstag";
+"friday" = "Freitag";
+"saturday" = "Samstag";
+"sunday" = "Sonntag";
+"monday_short" = "Mo";
+"tuesday_short" = "Di";
+"wednesday_short" = "Mi";
+"thursday_short" = "Do";
+"friday_short" = "Fr";
+"saturday_short" = "Sa";
+"sunday_short" = "So";
