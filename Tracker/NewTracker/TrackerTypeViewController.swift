@@ -11,7 +11,7 @@ final class TrackerTypeViewController: UIViewController {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Создание трекера"
+        label.text = L10n.addTrackerTitle
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .ypBlackDay
         label.textAlignment = .center
@@ -20,11 +20,14 @@ final class TrackerTypeViewController: UIViewController {
     }()
 
     private lazy var habitButton: UIButton = {
-        makeActionButton(title: "Привычка", action: #selector(habitTapped))
+        makeActionButton(title: L10n.habitTitle, action: #selector(habitTapped))
     }()
 
     private lazy var irregularEventButton: UIButton = {
-        makeActionButton(title: "Нерегулярное событие", action: #selector(irregularEventTapped))
+        makeActionButton(
+            title: L10n.irregularEventTitle,
+            action: #selector(irregularEventTapped)
+        )
     }()
 
     init(categoryStore: TrackerCategoryStore) {

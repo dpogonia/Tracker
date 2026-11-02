@@ -42,14 +42,14 @@ final class MainTabBarController: UITabBarController {
             recordStore: recordStore
         )
         trackersViewController.tabBarItem = UITabBarItem(
-            title: "Трекеры",
+            title: L10n.trackersTitle,
             image: UIImage(resource: .imageTracker),
             selectedImage: nil
         )
 
-        let statisticsViewController = StatisticsViewController()
+        let statisticsViewController = StatisticsViewController(recordStore: recordStore)
         statisticsViewController.tabBarItem = UITabBarItem(
-            title: "Статистика",
+            title: L10n.statisticsTitle,
             image: UIImage(resource: .imageStatistics),
             selectedImage: nil
         )

@@ -11,7 +11,7 @@ final class ScheduleViewController: UIViewController {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Расписание"
+        label.text = L10n.scheduleTitle
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .ypBlackDay
         label.textAlignment = .center
@@ -36,7 +36,7 @@ final class ScheduleViewController: UIViewController {
 
     private lazy var doneButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(L10n.doneAction, for: .normal)
         button.setTitleColor(.ypWhiteDay, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypBlackDay

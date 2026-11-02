@@ -79,6 +79,26 @@ final class TrackerStore: NSObject {
         return try context.fetch(request).first
     }
 
+    func categoryTitle(for trackerId: UUID) throws -> String? {
+        try tracker(with: trackerId)?.category.title
+    }
+
+    func update(_ tracker: Tracker, categoryTitle: String) throws {
+        guard let object = try self.tracker(with: tracker.id) else { return }
+        object.name = tracker.name
+        object.emoji = tracker.emoji
+        object.colorHex = tracker.color.hexString
+        object.schedule = tracker.schedule?.storedValue
+        object.category = try fetchOrCreateCategory(title: categoryTitle)
+        try context.save()
+    }
+
+    func delete(id: UUID) throws {
+        guard let object = try tracker(with: id) else { return }
+        context.delete(object)
+        try context.save()
+    }
+
     private func fetchOrCreateCategory(title: String) throws -> TrackerCategoryCoreData {
         let request = TrackerCategoryCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "title == %@", title)

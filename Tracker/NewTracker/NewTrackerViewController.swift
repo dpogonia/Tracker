@@ -5,7 +5,8 @@ final class NewTrackerViewController: UIViewController {
 
     private let isHabit: Bool
     private let categoryStore: TrackerCategoryStore
-    private var selectedSchedule: Set<WeekDay> = []
+    private let editingTracker: Tracker?
+    private var selectedSchedule: Set<WeekDay>
     private var selectedCategoryTitle: String?
     private var selectedEmoji: String?
     private var selectedColor: UIColor?
@@ -26,7 +27,11 @@ final class NewTrackerViewController: UIViewController {
 
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = isHabit ? "Новая привычка" : "Новое нерегулярное событие"
+        if editingTracker != nil {
+            label.text = isHabit ? L10n.editHabitTitle : L10n.editEventTitle
+        } else {
+            label.text = isHabit ? L10n.newHabitTitle : L10n.newEventTitle
+        }
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .ypBlackDay
         label.textAlignment = .center
@@ -36,7 +41,8 @@ final class NewTrackerViewController: UIViewController {
 
     private lazy var nameTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Введите название трекера"
+        textField.placeholder = L10n.trackerNamePlaceholder
+        textField.text = editingTracker?.name
         textField.font = .systemFont(ofSize: 17, weight: .regular)
         textField.textColor = .ypBlackDay
         textField.backgroundColor = .backgroundDay
@@ -53,7 +59,7 @@ final class NewTrackerViewController: UIViewController {
 
     private let limitLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ограничение 38 символов"
+        label.text = L10n.characterLimit
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.textColor = .ypRed
         label.textAlignment = .center
@@ -87,7 +93,7 @@ final class NewTrackerViewController: UIViewController {
 
     private let emojiTitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Emoji"
+        label.text = L10n.emojiTitle
         label.font = .systemFont(ofSize: 19, weight: .bold)
         label.textColor = .ypBlackDay
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -100,7 +106,7 @@ final class NewTrackerViewController: UIViewController {
 
     private let colorTitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Цвет"
+        label.text = L10n.colorTitle
         label.font = .systemFont(ofSize: 19, weight: .bold)
         label.textColor = .ypBlackDay
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -122,7 +128,7 @@ final class NewTrackerViewController: UIViewController {
 
     private lazy var cancelButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Отменить", for: .normal)
+        button.setTitle(L10n.cancelAction, for: .normal)
         button.setTitleColor(.ypRed, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.layer.cornerRadius = 16
@@ -134,7 +140,10 @@ final class NewTrackerViewController: UIViewController {
 
     private lazy var createButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Создать", for: .normal)
+        button.setTitle(
+            editingTracker == nil ? L10n.createAction : L10n.saveAction,
+            for: .normal
+        )
         button.setTitleColor(.ypWhiteDay, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypGray
@@ -144,9 +153,19 @@ final class NewTrackerViewController: UIViewController {
         return button
     }()
 
-    init(isHabit: Bool, categoryStore: TrackerCategoryStore) {
+    init(
+        isHabit: Bool,
+        categoryStore: TrackerCategoryStore,
+        tracker: Tracker? = nil,
+        categoryTitle: String? = nil
+    ) {
         self.isHabit = isHabit
         self.categoryStore = categoryStore
+        editingTracker = tracker
+        selectedSchedule = tracker?.schedule ?? []
+        selectedCategoryTitle = categoryTitle
+        selectedEmoji = tracker?.emoji
+        selectedColor = tracker?.color
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -160,6 +179,7 @@ final class NewTrackerViewController: UIViewController {
         view.backgroundColor = .ypWhiteDay
         setupLayout()
         setupKeyboardHandling()
+        updateCreateButton()
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
         tapGesture.cancelsTouchesInView = false
         view.addGestureRecognizer(tapGesture)
@@ -257,13 +277,15 @@ final class NewTrackerViewController: UIViewController {
     }
 
     private var settingRows: [String] {
-        isHabit ? ["Категория", "Расписание"] : ["Категория"]
+        let category = L10n.categoryTitle
+        let schedule = L10n.scheduleTitle
+        return isHabit ? [category, schedule] : [category]
     }
 
     private func scheduleSubtitle() -> String? {
         guard !selectedSchedule.isEmpty else { return nil }
         if selectedSchedule.count == WeekDay.allCases.count {
-            return "Каждый день"
+            return L10n.everyDay
         }
         return WeekDay.allCases
             .filter { selectedSchedule.contains($0) }
@@ -306,7 +328,7 @@ final class NewTrackerViewController: UIViewController {
               let color = selectedColor else { return }
 
         let tracker = Tracker(
-            id: UUID(),
+            id: editingTracker?.id ?? UUID(),
             name: name,
             color: color,
             emoji: emoji,
@@ -374,7 +396,7 @@ extension NewTrackerViewController: UITableViewDataSource, UITableViewDelegate {
 
         let title = settingRows[indexPath.row]
         let subtitle: String?
-        if title == "Категория" {
+        if title == L10n.categoryTitle {
             subtitle = selectedCategoryTitle
         } else {
             subtitle = scheduleSubtitle()
@@ -391,7 +413,7 @@ extension NewTrackerViewController: UITableViewDataSource, UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
         let title = settingRows[indexPath.row]
 
-        if title == "Категория" {
+        if title == L10n.categoryTitle {
             let viewModel = CategoriesViewModel(
                 categoryStore: categoryStore,
                 selectedCategoryTitle: selectedCategoryTitle
@@ -403,7 +425,7 @@ extension NewTrackerViewController: UITableViewDataSource, UITableViewDelegate {
             return
         }
 
-        guard title == "Расписание" else { return }
+        guard title == L10n.scheduleTitle else { return }
 
         let scheduleViewController = ScheduleViewController(selectedDays: selectedSchedule)
         scheduleViewController.delegate = self

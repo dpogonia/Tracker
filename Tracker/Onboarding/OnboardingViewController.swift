@@ -6,11 +6,11 @@ final class OnboardingViewController: UIPageViewController {
     private lazy var pages: [UIViewController] = [
         OnboardingPageViewController(
             image: UIImage(resource: .imageBlueOnboard),
-            text: "Отслеживайте только\nто, что хотите"
+            text: L10n.onboardingFirst
         ),
         OnboardingPageViewController(
             image: UIImage(resource: .imageRedOnboard),
-            text: "Даже если это\nне литры воды и йога"
+            text: L10n.onboardingSecond
         )
     ]
 
@@ -26,7 +26,7 @@ final class OnboardingViewController: UIPageViewController {
 
     private lazy var finishButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Вот это технологии!", for: .normal)
+        button.setTitle(L10n.onboardingAction, for: .normal)
         button.setTitleColor(.ypWhiteDay, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypBlackDay
