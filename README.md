@@ -26,8 +26,8 @@ UIKit, Core Data, iOS 17. Есть аналитика AppMetrica, локализ
 ## Запуск
 
 ```bash
-git clone https://github.com/dpogonia/Tracker.git
-cd Tracker
+git clone https://github.com/dpogonia/Tracker-Yandex.git
+cd Tracker-Yandex
 open Tracker.xcodeproj
 ```
 
