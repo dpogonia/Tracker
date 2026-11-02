@@ -4,8 +4,6 @@
 
 Описание и цели взяты из [технического задания Яндекса](https://github.com/Yandex-Practicum/iOS-TrackerApp-Public). Макет: [Figma](https://www.figma.com/design/owAO4CAPTJdpM1BZU5JHv7/Tracker).
 
-Актуальный код лежит в ветке `sprint_17`.
-
 ## Что умеет приложение
 
 Привычка повторяется по выбранным дням недели. Нерегулярное событие к дням не привязано. У карточки есть название, категория, эмодзи и цвет.
@@ -23,14 +21,13 @@
 
 ## Стек
 
-UIKit, Core Data, iOS 17. В ветке `sprint_17` добавлены аналитика AppMetrica, локализация и snapshot-тесты.
+UIKit, Core Data, iOS 17. Есть аналитика AppMetrica, локализация и snapshot-тесты.
 
 ## Запуск
 
 ```bash
 git clone https://github.com/dpogonia/Tracker.git
 cd Tracker
-git checkout sprint_17
 open Tracker.xcodeproj
 ```
 
